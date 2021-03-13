@@ -7,12 +7,12 @@ mongoose.connect(process.env.MONGODB_URI, {
   useCreateIndex: true,
 });
 const exerciseSchema = new mongoose.Schema({
-  _id: String,
+  userId: String,
   description: String,
   duration: Number,
   date: {
     type: Date,
-    default: new Date().toISOString().slice(0, 10).replace("T", " "),
+    default: new Date(),
   },
 });
 
@@ -21,10 +21,11 @@ const Exercise = mongoose.model("Exercise", exerciseSchema);
 
 exerciseSchema.set("toJSON", {
   transform: (document, returnedObject) => {
-    // returnedObject._id = returnedObject._id.toString();
+    // returnedObject.userId = returnedObject._id.toString();
     // delete returnedObject._id;
     delete returnedObject.__v;
   },
 });
 
 module.exports = Exercise;
+

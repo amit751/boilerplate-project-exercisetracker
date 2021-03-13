@@ -7,7 +7,7 @@ mongoose.connect(process.env.MONGODB_URI, {
   useCreateIndex: true,
 });
 const userSchema = new mongoose.Schema({
-  userName: String,
+  username: String,
 });
 
 const User = mongoose.model("User", userSchema);

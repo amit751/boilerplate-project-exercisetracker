@@ -25,7 +25,7 @@ app.post("/api/exercise/new-user", (req, res) => {
     username: username,
   });
   user.save().then((result) => {
-    res.send({ username: result.username, _id: result._id });
+    res.json({ username: result.username, _id: result._id });
   });
 });
 
@@ -33,13 +33,14 @@ app.get("/api/exercise/users", (req, res) => {
   User.find({})
     .select({ _v: 0 })
     .then((response) => {
-      res.send(response);
+      res.json(response);
     });
 });
 
 app.post("/api/exercise/add", (req, res) => {
   const body = req.body;
   User.findById(body.userId).then((user) => {
+    console.log(user);
     const exercise = new Exercise({
       userId: body.userId,
       description: body.description,
@@ -48,7 +49,7 @@ app.post("/api/exercise/add", (req, res) => {
     });
     //user.
     exercise.save().then((response) => {
-      res.send({
+      res.json({
         _id: user._id,
         username: user.username,
         date: response.date.toDateString(),
@@ -65,19 +66,37 @@ app.get("/api/exercise/log", (req, res) => {
   const { to } = req.query;
   const { limit } = req.query;
   User.findById(userId).then((user) => {
-    Exercise.find({ userId: userId }).then((exercise) => {
+    Exercise.find({ userId }).then((exercise) => {
       let log = [];
       log.push(...exercise);
-      if (from) {
+      if (from || to) {
+        let fromDate = new Date(0);
+        let toDate = new Date();
+        if (from) {
+          fromDate = new Date(from);
+        }
+        if (to) {
+          toDate = new Date(to);
+        }
+        log = log.filter((val) => {
+          return val.date >= fromDate && val.date <= toDate;
+        });
       }
-      res.send({
+      if (limit) {
+        log = log.slice(0, limit);
+      }
+      res.json({
         _id: user._id,
         username: user.username,
         count: log.length,
-        log: log,
+        log,
       });
     });
   });
+});
+
+app.delete("/api/exercise/users", (req, res) => {
+  User.remove({}).then((response) => res.send("hiii"));
 });
 
 const listener = app.listen(process.env.PORT || 3000, () => {
